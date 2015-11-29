@@ -69,7 +69,17 @@ public class NeuralNetwork {
             this.adjMat[0][i] = weight;
         }
 
-        
+        for (Node node :
+                this.input) {
+            for (Node hiddenNode :
+                    this.hiddenLayers.get(0)) {
+                double weight = lower + (this.generator.nextDouble() * (upper - lower));
+                if (weight == 0) {
+                    weight = (this.generator.nextInt(11) > 5) ? 0.05 : -0.05;
+                }
+                this.adjMat[node.id][hiddenNode.id] = weight;
+            }
+        }
     }
 }
 
