@@ -5,7 +5,7 @@ import java.util.Random;
 
 public class NeuralNetwork {
 
-    double[][] adjMat;
+    public double[][] adjMat;
     ArrayList<Node> input;
     ArrayList<ArrayList<Node> > hiddenLayers;
     ArrayList<Node> outputLayer;
@@ -19,6 +19,9 @@ public class NeuralNetwork {
         this.nodeCount = 0;
         this.data = data;
         this.generator = generator;
+        this.input = new ArrayList<>(data.size());
+        this.outputLayer = new ArrayList<>(outputLayerSize);
+        this.hiddenLayers = new ArrayList<>();
 
         for (int i = 0; i < data.get(0).size(); i++) {
             this.input.add(new Node(this.nodeCount));
@@ -53,9 +56,17 @@ public class NeuralNetwork {
 
     private double feedForward() {
         initializeWeights();
+        ArrayList<DataVector> copyData = this.data;
+
+        for (int i = 0; i < (int) (Math.floor(data.size() * 0.7)); i++) {
+            DataVector useData = copyData.remove(this.generator.nextInt(copyData.size()));
+            for (int j = 0; j < useData.size(); j++) {
+
+            }
+        }
     }
 
-    private void initializeWeights() {
+    public void initializeWeights() {
         double lower = -0.5, upper = 0.5;
         int totalNodes = this.nodeCount+outputLayer.size();
 
@@ -78,6 +89,33 @@ public class NeuralNetwork {
                     weight = (this.generator.nextInt(11) > 5) ? 0.05 : -0.05;
                 }
                 this.adjMat[node.id][hiddenNode.id] = weight;
+            }
+        }
+        for (int i = 0; i < this.hiddenLayers.size(); i++) {
+            for (Node startNode :
+                    this.hiddenLayers.get(i)) {
+                if (!(i+1 >= this.hiddenLayers.size())) {
+                    for (Node endNode :
+                            this.hiddenLayers.get(i + 1)) {
+                        double weight = lower + (this.generator.nextDouble() * (upper - lower));
+                        if (weight == 0) {
+                            weight = (this.generator.nextInt(11) > 5) ? 0.05 : -0.05;
+                        }
+                        adjMat[startNode.id][endNode.id] = weight;
+                    }
+                }
+            }
+        }
+
+        for (Node startNode :
+                this.hiddenLayers.get(this.hiddenLayers.size() - 1)) {
+            for (Node outNode :
+                    this.outputLayer) {
+                double weight = lower + (this.generator.nextDouble() * (upper - lower));
+                if (weight == 0) {
+                    weight = (this.generator.nextInt(11) > 5) ? 0.05 : -0.05;
+                }
+                adjMat[startNode.id][outNode.id] = weight;
             }
         }
     }

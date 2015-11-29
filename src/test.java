@@ -1,5 +1,7 @@
 import resources.DataGenerator;
+import resources.DataVector;
 import resources.InputVector;
+import resources.NeuralNetwork;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -11,16 +13,15 @@ public class test {
 
     public static void main(String[]args)
     {
-        long seed = System.currentTimeMillis();
-        Random generator = new Random(seed);
-        DataGenerator data = new DataGenerator(generator);
-        ArrayList<InputVector> list = data.generateDataSet(1, 4);
-
-        for (InputVector vedt :
-                list) {
-            for (int i = 0; i < vedt.size(); i++) {
-                System.out.println(vedt.get(i));
+        Random generator = new Random(System.currentTimeMillis());
+        NeuralNetwork net = new NeuralNetwork(new DataGenerator(generator).generateDataSet(1, 4), 1, generator);
+        net.addHiddenLayer(4);
+        net.initializeWeights();
+        for (int i = 0; i < net.adjMat.length; i++) {
+            for (int j = 0; j < net.adjMat[i].length; j++) {
+                System.out.print(net.adjMat[i][j] + " ");
             }
+            System.out.println();
         }
     }
 }
