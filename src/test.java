@@ -21,6 +21,7 @@ public class test {
             generator = new Random(seed);
             learningRate = lower + (generator.nextDouble() * (upper-lower));
 
+            System.out.println(learningRate);
             net = new NeuralNetwork(data.generateDataSet(500, 4), generator, learningRate);
             net.addHiddenLayer(8);
         }

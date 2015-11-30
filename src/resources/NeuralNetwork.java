@@ -71,7 +71,7 @@ public class NeuralNetwork {
             ArrayList<DataVector> copyData = new ArrayList<>(this.data);
             copyData = train(copyData);
             percentCorrect = test(copyData);
-            if (percentCorrect == 100) {
+            if (percentCorrect == 1.0) {
                 correctCount++;
             } else {
                 correctCount = 0;
@@ -81,6 +81,7 @@ public class NeuralNetwork {
             }
             runCount++;
             if (runCount > 10000) {
+                System.out.println();
                 System.out.println("Reached "+percentCorrect*100+"% correct");
                 return false;
             }
