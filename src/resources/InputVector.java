@@ -28,7 +28,7 @@ public class InputVector {
         }
     }
 
-    public void set ( int i , double val ) {
+    public void add ( int i , double val ) {
         if (i < this.matrix.length)
             this.matrix[i] = val;
         else {

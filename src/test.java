@@ -1,27 +1,31 @@
-import resources.DataGenerator;
-import resources.DataVector;
-import resources.InputVector;
-import resources.NeuralNetwork;
+import resources.*;
 
-import java.util.ArrayList;
 import java.util.Random;
 
-/**
- * Created by Jeremy on 11/26/2015.
- */
 public class test {
 
     public static void main(String[]args)
     {
-        Random generator = new Random(System.currentTimeMillis());
-        NeuralNetwork net = new NeuralNetwork(new DataGenerator(generator).generateDataSet(1, 4), 1, generator);
-        net.addHiddenLayer(4);
-        net.initializeWeights();
-        for (int i = 0; i < net.adjMat.length; i++) {
-            for (int j = 0; j < net.adjMat[i].length; j++) {
-                System.out.print(net.adjMat[i][j] + " ");
-            }
-            System.out.println();
+        long seed = System.currentTimeMillis();
+        Random generator = new Random(seed);
+        DataGenerator data = new DataGenerator(generator);
+        double lower = 0.1, upper = 0.5;
+        double learningRate = 0.1;
+
+        NeuralNetwork net = new NeuralNetwork(data.generateDataSet(500, 4), generator, learningRate);
+        net.addHiddenLayer(8);
+
+        while (!net.run()) {
+            System.out.println("Reset with new variables");
+            seed = System.currentTimeMillis();
+            generator = new Random(seed);
+            learningRate = lower + (generator.nextDouble() * (upper-lower));
+
+            net = new NeuralNetwork(data.generateDataSet(500, 4), generator, learningRate);
+            net.addHiddenLayer(8);
         }
+
+        System.out.println();
+        System.out.println("The seed utilized was "+seed+" with 8 hidden nodes and a learning rate of "+learningRate);
     }
 }
