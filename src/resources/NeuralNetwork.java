@@ -60,6 +60,8 @@ public class NeuralNetwork {
     }
 
     public boolean run() {
+        System.out.println("The net topology is "+input.size()+"-"+hiddenLayers.get(0).size()+"-"+outputLayer.size());
+        System.out.println("The learning rate is "+this.learningRate);
         initializeWeights();
 
         double percentCorrect;
@@ -71,6 +73,7 @@ public class NeuralNetwork {
             ArrayList<DataVector> copyData = new ArrayList<>(this.data);
             copyData = train(copyData);
             percentCorrect = test(copyData);
+            System.out.println("Percent correct = "+percentCorrect*100+"%");
             if (percentCorrect == 1.0) {
                 correctCount++;
             } else {
@@ -80,7 +83,7 @@ public class NeuralNetwork {
                 break;
             }
             runCount++;
-            if (runCount > 10000) {
+            if (runCount > 150000) {
                 System.out.println();
                 System.out.println("Reached "+percentCorrect*100+"% correct");
                 return false;
@@ -98,10 +101,16 @@ public class NeuralNetwork {
         for (DataVector data : copyData) {
             feedForward(data);
             int result = (int)Math.round(outputLayer.get(0).currentOutput);
+            System.out.print("Data test is ");
+            for (int i = 0; i < data.size(); i++) {
+                System.out.print(data.get(i));
+            }
+            System.out.print(", expected : "+data.expected+", data received: "+outputLayer.get(0).currentOutput);
             if (data.expected == result) {
                 correct++;
             }
         }
+        System.out.println();
         return (double)(correct)/(double)(copyData.size());
     }
 
@@ -111,7 +120,13 @@ public class NeuralNetwork {
         for (Node input : this.input) {
             ArrayList<Double> preInput = new ArrayList<Double>(useData.size());
             for (int j = 0; j < useData.size(); j++) {
-                preInput.add((useData.get(j)*adjMat[j][input.id]));
+                double dataInput;
+                if (useData.get(j) == 0) {
+                    dataInput = 0.01;
+                } else {
+                    dataInput = 1;
+                }
+                preInput.add((dataInput*adjMat[j][input.id]));
             }
             input.sumAndsigmoid(preInput);
         }
@@ -145,21 +160,21 @@ public class NeuralNetwork {
         for (int i = 0; i < (int) (Math.floor(data.size() * 0.7)); i++) {
             DataVector useData = copyData.remove(this.generator.nextInt(copyData.size()));
             feedForward(useData);
-            backPropagation();
+            backPropagation(useData);
         }
 
         //Returns the unrun test examples
         return copyData;
     }
 
-    private void backPropagation() {
+    private void backPropagation(DataVector inData) {
 
         ArrayList<Node> lastHidden = this.hiddenLayers.get(this.hiddenLayers.size()-1);
         Node output = this.outputLayer.get(0);
 
         //For each node in the hidden layer, determine error signal from outputs error
         for (Node node : lastHidden) {
-            node.errSig = adjMat[node.id][output.id]*output.errSig;
+            node.errSig = this.adjMat[node.id][output.id]*output.errSig;
         }
 
         //Then for each node in input layer determine its error sig using hidden layer
@@ -172,23 +187,24 @@ public class NeuralNetwork {
         }
 
         //Update weights, starting with data to input node path
-        for (int i = 0; i < data.get(0).size(); i++) {
+        for (int i = 0; i < inData.size(); i++) {
             for (Node inputNode : this.input) {
-                this.adjMat[i][inputNode.id] = this.adjMat[i][inputNode.id]+(this.learningRate)*inputNode.errSig*inputNode.currentOutput*(1-inputNode.currentOutput);
+                double change = this.adjMat[i][inputNode.id]+(this.learningRate)*inputNode.errSig*inputNode.currentOutput*(1-inputNode.currentOutput)*inData.get(i);
+                this.adjMat[i][inputNode.id] = change;
             }
         }
 
         //Input to hidden node paths
         for (Node node : this.input) {
             for (Node hiddenNode : this.hiddenLayers.get(0)) {
-                this.adjMat[node.id][hiddenNode.id] = this.adjMat[node.id][hiddenNode.id]+(this.learningRate)*hiddenNode.errSig*hiddenNode.currentOutput*(1-hiddenNode.currentOutput);
+                this.adjMat[node.id][hiddenNode.id] = this.adjMat[node.id][hiddenNode.id]+(this.learningRate)*hiddenNode.errSig*hiddenNode.currentOutput*(1-hiddenNode.currentOutput)*node.currentOutput;
             }
         }
 
         //Hidden nodes to output paths
         for (Node startNode : this.hiddenLayers.get(this.hiddenLayers.size() - 1)) {
             for (Node outNode : this.outputLayer) {
-                adjMat[startNode.id][outNode.id] = this.adjMat[startNode.id][outNode.id] = this.adjMat[startNode.id][outNode.id]+(this.learningRate)*outNode.errSig*outNode.currentOutput*(1-outNode.currentOutput);
+                adjMat[startNode.id][outNode.id] = this.adjMat[startNode.id][outNode.id] = this.adjMat[startNode.id][outNode.id]+(this.learningRate)*outNode.errSig*outNode.currentOutput*(1-outNode.currentOutput)*startNode.currentOutput;
             }
         }
     }

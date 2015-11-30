@@ -6,25 +6,14 @@ public class test {
 
     public static void main(String[]args)
     {
-        long seed = System.currentTimeMillis();
+        long seed = System.currentTimeMillis(); //Perfect seed = 1448893265937
         Random generator = new Random(seed);
         DataGenerator data = new DataGenerator(generator);
-        double lower = 0.1, upper = 0.5;
         double learningRate = 0.1;
 
-        NeuralNetwork net = new NeuralNetwork(data.generateDataSet(560, 4), generator, learningRate);
+        NeuralNetwork net = new NeuralNetwork(data.generateDataSet(100, 4), generator, learningRate);
         net.addHiddenLayer(8);
-
-        while (!net.run()) {
-            System.out.println("Reset with new variables");
-            seed = System.currentTimeMillis();
-            generator = new Random(seed);
-            learningRate = lower + (generator.nextDouble() * (upper-lower));
-
-            System.out.println(learningRate);
-            net = new NeuralNetwork(data.generateDataSet(560, 4), generator, learningRate);
-            net.addHiddenLayer(8);
-        }
+        net.run();
 
         System.out.println();
         System.out.println("The seed utilized was "+seed+" with 8 hidden nodes and a learning rate of "+learningRate);
