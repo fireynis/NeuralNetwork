@@ -12,7 +12,7 @@ public class test {
         double lower = 0.1, upper = 0.5;
         double learningRate = 0.1;
 
-        NeuralNetwork net = new NeuralNetwork(data.generateDataSet(1000, 4), generator, learningRate);
+        NeuralNetwork net = new NeuralNetwork(data.generateDataSet(560, 4), generator, learningRate);
         net.addHiddenLayer(8);
 
         while (!net.run()) {
