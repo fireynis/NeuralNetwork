@@ -80,6 +80,7 @@ public class NeuralNetwork {
                 correctCount = 0;
             }
             if (correctCount > 5) {
+                String woot = "woot";
                 break;
             }
             runCount++;
@@ -103,14 +104,14 @@ public class NeuralNetwork {
             int result = (int)Math.round(outputLayer.get(0).currentOutput);
             System.out.print("Data test is ");
             for (int i = 0; i < data.size(); i++) {
-                System.out.print(data.get(i));
+                System.out.print((int)(data.get(i)));
             }
             System.out.print(", expected : "+data.expected+", data received: "+outputLayer.get(0).currentOutput);
             if (data.expected == result) {
                 correct++;
             }
+            System.out.println();
         }
-        System.out.println();
         return (double)(correct)/(double)(copyData.size());
     }
 
